@@ -25,11 +25,18 @@ function getDb(): Database.Database {
       views TEXT,
       stage TEXT NOT NULL DEFAULT 'idea',
       notes TEXT DEFAULT '',
+      script TEXT DEFAULT '',
       priority INTEGER DEFAULT 0,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
+
+  // Migration: add script column if missing
+  const cols = db.prepare("PRAGMA table_info(pipeline_items)").all() as { name: string }[];
+  if (!cols.find(c => c.name === 'script')) {
+    db.exec("ALTER TABLE pipeline_items ADD COLUMN script TEXT DEFAULT ''");
+  }
 
   return db;
 }
@@ -45,6 +52,7 @@ export interface PipelineItem {
   views: string | null;
   stage: string;
   notes: string;
+  script: string;
   priority: number;
   created_at: string;
   updated_at: string;
@@ -100,7 +108,7 @@ export function addItem(data: {
   }
 }
 
-export function updateItem(id: number, data: Partial<{ stage: string; notes: string; priority: number }>): PipelineItem | null {
+export function updateItem(id: number, data: Partial<{ stage: string; notes: string; script: string; priority: number }>): PipelineItem | null {
   const db = getDb();
   try {
     const fields: string[] = [];
@@ -113,6 +121,10 @@ export function updateItem(id: number, data: Partial<{ stage: string; notes: str
     if (data.notes !== undefined) {
       fields.push('notes = @notes');
       values.notes = data.notes;
+    }
+    if (data.script !== undefined) {
+      fields.push('script = @script');
+      values.script = data.script;
     }
     if (data.priority !== undefined) {
       fields.push('priority = @priority');
