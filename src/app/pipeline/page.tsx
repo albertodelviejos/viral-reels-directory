@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { CATEGORY_COLORS } from '@/types/reel';
 
 interface PipelineItem {
@@ -262,8 +263,18 @@ function ContentPanel({
         {/* Content */}
         <div className="p-6">
           {content ? (
-            <div className="whitespace-pre-wrap text-sm text-zinc-300 leading-relaxed font-mono">
-              {content}
+            <div className="prose prose-invert prose-sm max-w-none
+              prose-headings:text-white prose-headings:font-bold prose-headings:border-b prose-headings:border-zinc-800 prose-headings:pb-2 prose-headings:mb-3
+              prose-h2:text-lg prose-h2:mt-6 prose-h3:text-base prose-h3:mt-4 prose-h3:border-none
+              prose-p:text-zinc-300 prose-p:leading-relaxed
+              prose-strong:text-white
+              prose-li:text-zinc-300 prose-li:marker:text-zinc-600
+              prose-ol:text-zinc-300
+              prose-hr:border-zinc-800
+              prose-code:text-violet-400 prose-code:bg-zinc-800/50 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-xs prose-code:before:content-none prose-code:after:content-none
+              prose-blockquote:border-violet-500/30 prose-blockquote:bg-violet-500/5 prose-blockquote:rounded-r-lg prose-blockquote:py-1
+            ">
+              <ReactMarkdown>{content}</ReactMarkdown>
             </div>
           ) : (
             <div className="text-center py-20">
