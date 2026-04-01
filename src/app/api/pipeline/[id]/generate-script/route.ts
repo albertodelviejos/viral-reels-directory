@@ -33,32 +33,32 @@ Genera un guión completo para un video corto (30-60 segundos) basado en esta re
 - Tipo: ${item.tipo || 'Reel'}
 - Views originales: ${item.views || 'N/A'}
 
-**Contexto:** El video es para Alberto (@albertodviejo), creador de contenido sobre IA, automatización y tecnología. El guión debe adaptarse a su estilo y audiencia hispanohablante.
+**Context:** The video is for Alberto (@albertodviejo), a content creator focused on AI, automation, and technology. The script should be adapted to his style and English-speaking audience.
 
-${item.notes ? `**Notas del creador:** ${item.notes}` : ''}
+${item.notes ? `**Creator notes:** ${item.notes}` : ''}
 
-**Genera el guión con esta estructura:**
+**Generate the script with this structure:**
 
-## 🎬 GUIÓN
+## 🎬 SCRIPT
 
 ### Hook (0-3s)
-[Frase de apertura que enganche inmediatamente]
+[Opening line that hooks immediately]
 
-### Desarrollo (3-25s)  
-[Contenido principal, paso a paso o historia]
+### Body (3-25s)  
+[Main content, step by step or story]
 
-### CTA / Cierre (25-30s)
-[Llamada a la acción o cierre potente]
+### CTA / Closing (25-30s)
+[Strong call to action or closing line]
 
 ---
 
-### 📝 Notas de producción
-- **Estilo visual:** [sugerencias de edición]
-- **Música/SFX:** [recomendaciones]
-- **Texto en pantalla:** [overlays sugeridos]
-- **Hashtags:** [5-8 hashtags relevantes]
+### 📝 Production Notes
+- **Visual style:** [editing suggestions]
+- **Music/SFX:** [recommendations]
+- **On-screen text:** [suggested overlays]
+- **Hashtags:** [5-8 relevant hashtags]
 
-Escribe TODO en español.`;
+Write EVERYTHING in English.`;
 
   try {
     const claudePath = '/Users/alberto/.nvm/versions/node/v24.13.0/bin/claude';
