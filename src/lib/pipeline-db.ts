@@ -32,10 +32,13 @@ function getDb(): Database.Database {
     )
   `);
 
-  // Migration: add script column if missing
+  // Migrations
   const cols = db.prepare("PRAGMA table_info(pipeline_items)").all() as { name: string }[];
   if (!cols.find(c => c.name === 'script')) {
     db.exec("ALTER TABLE pipeline_items ADD COLUMN script TEXT DEFAULT ''");
+  }
+  if (!cols.find(c => c.name === 'analysis')) {
+    db.exec("ALTER TABLE pipeline_items ADD COLUMN analysis TEXT DEFAULT ''");
   }
 
   return db;
@@ -53,6 +56,7 @@ export interface PipelineItem {
   stage: string;
   notes: string;
   script: string;
+  analysis: string;
   priority: number;
   created_at: string;
   updated_at: string;
@@ -108,7 +112,7 @@ export function addItem(data: {
   }
 }
 
-export function updateItem(id: number, data: Partial<{ stage: string; notes: string; script: string; priority: number }>): PipelineItem | null {
+export function updateItem(id: number, data: Partial<{ stage: string; notes: string; script: string; analysis: string; priority: number }>): PipelineItem | null {
   const db = getDb();
   try {
     const fields: string[] = [];
@@ -125,6 +129,10 @@ export function updateItem(id: number, data: Partial<{ stage: string; notes: str
     if (data.script !== undefined) {
       fields.push('script = @script');
       values.script = data.script;
+    }
+    if (data.analysis !== undefined) {
+      fields.push('analysis = @analysis');
+      values.analysis = data.analysis;
     }
     if (data.priority !== undefined) {
       fields.push('priority = @priority');

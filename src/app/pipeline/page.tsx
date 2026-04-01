@@ -15,6 +15,7 @@ interface PipelineItem {
   stage: string;
   notes: string;
   script: string;
+  analysis: string;
   priority: number;
   created_at: string;
   updated_at: string;
@@ -47,8 +48,11 @@ function KanbanCard({
   onUpdateNotes,
   onGenerateScript,
   onViewScript,
+  onAnalyze,
+  onViewAnalysis,
   onDragStart,
   generatingId,
+  analyzingId,
 }: {
   item: PipelineItem;
   stageIndex: number;
@@ -57,14 +61,18 @@ function KanbanCard({
   onUpdateNotes: (id: number, notes: string) => void;
   onGenerateScript: (id: number) => void;
   onViewScript: (item: PipelineItem) => void;
+  onAnalyze: (id: number) => void;
+  onViewAnalysis: (item: PipelineItem) => void;
   onDragStart: (e: React.DragEvent, item: PipelineItem) => void;
   generatingId: number | null;
+  analyzingId: number | null;
 }) {
   const [showNotes, setShowNotes] = useState(false);
   const [notes, setNotes] = useState(item.notes);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const colors = item.category ? CATEGORY_COLORS[item.category] : null;
   const isGenerating = generatingId === item.id;
+  const isAnalyzing = analyzingId === item.id;
 
   const handleNotesBlur = () => {
     if (notes !== item.notes) {
@@ -135,14 +143,34 @@ function KanbanCard({
         )}
       </div>
 
-      {/* Script button */}
+      {/* Action buttons */}
       <div className="mt-2 flex gap-1.5">
+        {item.analysis ? (
+          <button
+            onClick={() => onViewAnalysis(item)}
+            className="flex-1 text-[10px] font-medium px-2 py-1 rounded bg-amber-500/15 text-amber-400 border border-amber-500/30 hover:bg-amber-500/25 transition-colors"
+          >
+            🔍 Análisis
+          </button>
+        ) : (
+          <button
+            onClick={() => onAnalyze(item.id)}
+            disabled={isAnalyzing}
+            className={`flex-1 text-[10px] font-medium px-2 py-1 rounded border transition-colors ${
+              isAnalyzing
+                ? 'bg-zinc-800 text-zinc-500 border-zinc-700 cursor-wait'
+                : 'bg-amber-500/15 text-amber-400 border-amber-500/30 hover:bg-amber-500/25'
+            }`}
+          >
+            {isAnalyzing ? '⏳...' : '🔍 Analizar'}
+          </button>
+        )}
         {item.script ? (
           <button
             onClick={() => onViewScript(item)}
             className="flex-1 text-[10px] font-medium px-2 py-1 rounded bg-blue-500/15 text-blue-400 border border-blue-500/30 hover:bg-blue-500/25 transition-colors"
           >
-            📄 Ver guión
+            📄 Guión
           </button>
         ) : (
           <button
@@ -154,7 +182,7 @@ function KanbanCard({
                 : 'bg-violet-500/15 text-violet-400 border-violet-500/30 hover:bg-violet-500/25'
             }`}
           >
-            {isGenerating ? '⏳ Generando...' : '✨ Generar guión'}
+            {isGenerating ? '⏳...' : '✨ Guión'}
           </button>
         )}
       </div>
@@ -182,18 +210,23 @@ function KanbanCard({
   );
 }
 
-function ScriptPanel({
+function ContentPanel({
   item,
+  mode,
   onClose,
   onRegenerate,
-  generatingId,
+  isLoading,
 }: {
   item: PipelineItem;
+  mode: 'script' | 'analysis';
   onClose: () => void;
   onRegenerate: (id: number) => void;
-  generatingId: number | null;
+  isLoading: boolean;
 }) {
-  const isGenerating = generatingId === item.id;
+  const content = mode === 'script' ? item.script : item.analysis;
+  const title = mode === 'script' ? '📄 Guión' : '🔍 Análisis Viral';
+  const regenLabel = mode === 'script' ? '🔄 Regenerar guión' : '🔄 Re-analizar';
+  const emptyMsg = mode === 'script' ? 'No script generated yet' : 'No analysis generated yet';
 
   return (
     <>
@@ -202,20 +235,20 @@ function ScriptPanel({
         {/* Header */}
         <div className="sticky top-0 bg-zinc-950/90 backdrop-blur-xl border-b border-zinc-800 px-6 py-4 flex items-center justify-between z-10">
           <div>
-            <h2 className="font-semibold text-white">📄 Guión</h2>
+            <h2 className="font-semibold text-white">{title}</h2>
             <p className="text-xs text-zinc-500">{item.handle} — {item.hook.slice(0, 50)}...</p>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={() => onRegenerate(item.id)}
-              disabled={isGenerating}
+              disabled={isLoading}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
-                isGenerating
+                isLoading
                   ? 'bg-zinc-800 text-zinc-500 border-zinc-700 cursor-wait'
                   : 'bg-violet-500/15 text-violet-400 border-violet-500/30 hover:bg-violet-500/25'
               }`}
             >
-              {isGenerating ? '⏳ Generando...' : '🔄 Regenerar'}
+              {isLoading ? '⏳ Processing...' : regenLabel}
             </button>
             <button
               onClick={onClose}
@@ -226,17 +259,15 @@ function ScriptPanel({
           </div>
         </div>
 
-        {/* Script content */}
+        {/* Content */}
         <div className="p-6">
-          {item.script ? (
-            <div className="prose prose-invert prose-sm max-w-none">
-              <div className="whitespace-pre-wrap text-sm text-zinc-300 leading-relaxed font-mono">
-                {item.script}
-              </div>
+          {content ? (
+            <div className="whitespace-pre-wrap text-sm text-zinc-300 leading-relaxed font-mono">
+              {content}
             </div>
           ) : (
             <div className="text-center py-20">
-              <p className="text-zinc-500">No hay guión generado aún</p>
+              <p className="text-zinc-500">{emptyMsg}</p>
             </div>
           )}
         </div>
@@ -250,7 +281,8 @@ export default function PipelinePage() {
   const [loading, setLoading] = useState(true);
   const [dragOverStage, setDragOverStage] = useState<string | null>(null);
   const [generatingId, setGeneratingId] = useState<number | null>(null);
-  const [viewingScript, setViewingScript] = useState<PipelineItem | null>(null);
+  const [analyzingId, setAnalyzingId] = useState<number | null>(null);
+  const [viewingPanel, setViewingPanel] = useState<{ item: PipelineItem; mode: 'script' | 'analysis' } | null>(null);
 
   const fetchItems = useCallback(async () => {
     try {
@@ -336,13 +368,35 @@ export default function PipelinePage() {
         setItems(prev => prev.map(item =>
           item.id === id ? { ...item, script: data.script, stage: 'guion' } : item
         ));
+        // Update panel if viewing this item
+        setViewingPanel(prev => prev?.item.id === id ? { ...prev, item: { ...prev.item, script: data.script, stage: 'guion' } } : prev);
       } else {
-        alert(data.error || 'Error generando guión');
+        alert(data.error || 'Error generating script');
       }
     } catch {
-      alert('Error de conexión al generar guión');
+      alert('Connection error generating script');
     } finally {
       setGeneratingId(null);
+    }
+  };
+
+  const analyzeItem = async (id: number) => {
+    setAnalyzingId(id);
+    try {
+      const res = await fetch(`/api/pipeline/${id}/analyze`, { method: 'POST' });
+      const data = await res.json();
+      if (data.analysis) {
+        setItems(prev => prev.map(item =>
+          item.id === id ? { ...item, analysis: data.analysis } : item
+        ));
+        setViewingPanel(prev => prev?.item.id === id ? { ...prev, item: { ...prev.item, analysis: data.analysis } } : prev);
+      } else {
+        alert(data.error || 'Error analyzing');
+      }
+    } catch {
+      alert('Connection error analyzing');
+    } finally {
+      setAnalyzingId(null);
     }
   };
 
@@ -379,14 +433,20 @@ export default function PipelinePage() {
           </div>
         ) : (
           <>
-          {viewingScript && (
-            <ScriptPanel
-              item={viewingScript}
-              onClose={() => setViewingScript(null)}
+          {viewingPanel && (
+            <ContentPanel
+              item={viewingPanel.item}
+              mode={viewingPanel.mode}
+              onClose={() => setViewingPanel(null)}
               onRegenerate={(id) => {
-                generateScript(id);
+                if (viewingPanel.mode === 'script') generateScript(id);
+                else analyzeItem(id);
               }}
-              generatingId={generatingId}
+              isLoading={
+                viewingPanel.mode === 'script'
+                  ? generatingId === viewingPanel.item.id
+                  : analyzingId === viewingPanel.item.id
+              }
             />
           )}
 
@@ -429,9 +489,12 @@ export default function PipelinePage() {
                         onDelete={deleteItem}
                         onUpdateNotes={updateNotes}
                         onGenerateScript={generateScript}
-                        onViewScript={setViewingScript}
+                        onViewScript={(item) => setViewingPanel({ item, mode: 'script' })}
+                        onAnalyze={analyzeItem}
+                        onViewAnalysis={(item) => setViewingPanel({ item, mode: 'analysis' })}
                         onDragStart={handleDragStart}
                         generatingId={generatingId}
+                        analyzingId={analyzingId}
                       />
                     ))}
                   </div>
