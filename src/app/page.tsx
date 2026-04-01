@@ -25,7 +25,7 @@ export default async function Home() {
             Viral Reels Directory
           </h1>
           <p className="text-sm text-zinc-500 mt-1">
-            Tracking viral Instagram content from AI creators
+            Tracking viral Instagram content from AI creators · Añade reels al pipeline con el botón <span className="text-zinc-400">+</span>
           </p>
         </div>
 

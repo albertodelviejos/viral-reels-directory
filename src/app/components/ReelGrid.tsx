@@ -55,6 +55,41 @@ export default function ReelGrid({ reels }: { reels: Reel[] }) {
   const [selectedTypes, setSelectedTypes] = useState<ContentType[]>([]);
   const [selectedReel, setSelectedReel] = useState<Reel | null>(null);
   const [newLinks, setNewLinks] = useState<Set<string>>(new Set());
+  const [pipelineLinks, setPipelineLinks] = useState<Set<string>>(new Set());
+
+  // Load pipeline links on mount
+  useEffect(() => {
+    fetch('/api/pipeline')
+      .then(res => res.json())
+      .then(data => {
+        const links = new Set<string>((data.items || []).map((item: { reel_link: string }) => item.reel_link));
+        setPipelineLinks(links);
+      })
+      .catch(() => {});
+  }, []);
+
+  const addToPipeline = async (reel: Reel) => {
+    try {
+      const res = await fetch('/api/pipeline', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          reel_link: reel.link,
+          handle: reel.handle,
+          hook: reel.hook,
+          format: reel.format,
+          category: reel.category,
+          tipo: reel.tipo,
+          views: reel.views,
+        }),
+      });
+      if (res.ok || res.status === 409) {
+        setPipelineLinks(prev => new Set([...prev, reel.link]));
+      }
+    } catch (e) {
+      console.error('Failed to add to pipeline:', e);
+    }
+  };
 
   // Detect new reels on mount
   useEffect(() => {
@@ -200,13 +235,20 @@ export default function ReelGrid({ reels }: { reels: Reel[] }) {
               key={`${reel.link}-${i}`}
               reel={reel}
               isNew={newLinks.has(reel.link)}
+              inPipeline={pipelineLinks.has(reel.link)}
+              onAddToPipeline={() => addToPipeline(reel)}
               onClick={() => setSelectedReel(reel)}
             />
           ))}
         </div>
       )}
 
-      <DetailPanel reel={selectedReel} onClose={() => setSelectedReel(null)} />
+      <DetailPanel
+        reel={selectedReel}
+        onClose={() => setSelectedReel(null)}
+        inPipeline={selectedReel ? pipelineLinks.has(selectedReel.link) : false}
+        onAddToPipeline={selectedReel ? () => addToPipeline(selectedReel) : undefined}
+      />
     </>
   );
 }

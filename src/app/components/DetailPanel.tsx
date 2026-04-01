@@ -6,6 +6,8 @@ import { Reel, CATEGORY_COLORS, TIPO_COLORS, TIPO_ICONS } from '@/types/reel';
 interface DetailPanelProps {
   reel: Reel | null;
   onClose: () => void;
+  inPipeline?: boolean;
+  onAddToPipeline?: () => void;
 }
 
 function formatCompact(n: number): string {
@@ -42,7 +44,7 @@ function ThumbnailOverlay({ tipo }: { tipo: Reel['tipo'] }) {
   );
 }
 
-export default function DetailPanel({ reel, onClose }: DetailPanelProps) {
+export default function DetailPanel({ reel, onClose, inPipeline, onAddToPipeline }: DetailPanelProps) {
   const [imgError, setImgError] = useState(false);
 
   if (!reel) return null;
@@ -188,6 +190,20 @@ export default function DetailPanel({ reel, onClose }: DetailPanelProps) {
           >
             {ctaLabel}
           </a>
+
+          {/* Pipeline button */}
+          {inPipeline ? (
+            <div className="w-full text-center py-2.5 rounded-lg border border-violet-500/30 bg-violet-500/10">
+              <span className="text-violet-400 text-sm font-medium">✓ En el Pipeline</span>
+            </div>
+          ) : onAddToPipeline ? (
+            <button
+              onClick={onAddToPipeline}
+              className="w-full text-center py-2.5 rounded-lg border border-zinc-700 bg-zinc-900 hover:bg-zinc-800 hover:border-zinc-600 text-zinc-300 text-sm font-medium transition-colors"
+            >
+              + Añadir al Pipeline
+            </button>
+          ) : null}
         </div>
       </div>
     </>

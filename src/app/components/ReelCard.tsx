@@ -6,6 +6,8 @@ import { Reel, CATEGORY_COLORS, TIPO_COLORS, TIPO_ICONS } from '@/types/reel';
 interface ReelCardProps {
   reel: Reel;
   isNew?: boolean;
+  inPipeline?: boolean;
+  onAddToPipeline?: () => void;
   onClick: () => void;
 }
 
@@ -37,7 +39,7 @@ function OverlayIcon({ tipo }: { tipo: Reel['tipo'] }) {
   );
 }
 
-export default function ReelCard({ reel, isNew, onClick }: ReelCardProps) {
+export default function ReelCard({ reel, isNew, inPipeline, onAddToPipeline, onClick }: ReelCardProps) {
   const colors = CATEGORY_COLORS[reel.category] || { bg: 'bg-zinc-700/15', text: 'text-zinc-400', border: 'border-zinc-600/30' };
   const tipoColors = TIPO_COLORS[reel.tipo];
   const initial = reel.handle.replace('@', '')[0]?.toUpperCase() || '?';
@@ -92,6 +94,16 @@ export default function ReelCard({ reel, isNew, onClick }: ReelCardProps) {
             <OverlayIcon tipo={reel.tipo} />
           </div>
         </div>
+        {/* Add to pipeline button */}
+        {!inPipeline && onAddToPipeline && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onAddToPipeline(); }}
+            className="absolute bottom-2 right-2 w-7 h-7 rounded-lg bg-violet-600 hover:bg-violet-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all text-sm font-bold shadow-lg"
+            title="Añadir al Pipeline"
+          >
+            +
+          </button>
+        )}
       </div>
 
       {/* Card body */}
@@ -104,7 +116,14 @@ export default function ReelCard({ reel, isNew, onClick }: ReelCardProps) {
         </div>
         <p className="text-xs text-zinc-400 line-clamp-2 leading-relaxed">{reel.hook}</p>
         <div className="flex items-center justify-between text-[10px] text-zinc-600">
-          {reel.date && <span>{reel.date}</span>}
+          <div className="flex items-center gap-1.5">
+            {reel.date && <span>{reel.date}</span>}
+            {inPipeline && (
+              <span className="text-[9px] px-1.5 py-0.5 rounded bg-violet-500/15 text-violet-400 border border-violet-500/30 font-medium">
+                Pipeline
+              </span>
+            )}
+          </div>
           {reel.engagement && (
             <span className={`font-medium ${
               reel.engagementNum >= 5 ? 'text-emerald-500' :
