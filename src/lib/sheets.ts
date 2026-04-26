@@ -1,5 +1,5 @@
 import { Reel, ContentType } from '@/types/reel';
-import { execSync } from 'child_process';
+import { google } from 'googleapis';
 
 function parseNumber(str: string): number {
   if (!str) return 0;
@@ -21,16 +21,19 @@ function parseTipo(value: string): ContentType {
 
 export async function fetchReels(): Promise<Reel[]> {
   const sheetId = process.env.SHEET_ID || '1NUPIkwmCV4vbYKVjzpXEizbXXQF18Hv1M-009VRkJ4o';
+  const apiKey = process.env.GOOGLE_API_KEY;
 
-  // Use gog CLI which already has OAuth configured
-  const gogPath = process.env.GOG_PATH || '/opt/homebrew/bin/gog';
-  const raw = execSync(
-    `${gogPath} sheets get ${sheetId} "Hoja 1!A2:M500" --json --no-input`,
-    { encoding: 'utf8', timeout: 15000 }
-  );
+  if (!apiKey) {
+    throw new Error('GOOGLE_API_KEY is required — create one at console.cloud.google.com with Sheets API enabled');
+  }
 
-  const data = JSON.parse(raw);
-  const rows: string[][] = data.values || [];
+  const sheets = google.sheets({ version: 'v4', auth: apiKey });
+  const res = await sheets.spreadsheets.values.get({
+    spreadsheetId: sheetId,
+    range: 'Hoja 1!A2:M500',
+  });
+
+  const rows: string[][] = (res.data.values as string[][]) || [];
 
   return rows
     .filter(row => row[0] && row[0].trim())
