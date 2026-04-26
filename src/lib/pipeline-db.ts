@@ -71,15 +71,15 @@ export const STAGE_LABELS: Record<Stage, string> = {
 export async function getAllItems(): Promise<PipelineItem[]> {
   await ensureMigrated();
   const db = getDb();
-  const rows = await db`SELECT * FROM pipeline_items ORDER BY priority DESC, created_at DESC`;
-  return rows as unknown as PipelineItem[];
+  const rows = await db`SELECT * FROM pipeline_items ORDER BY priority DESC, created_at DESC` as unknown as PipelineItem[];
+  return rows;
 }
 
 export async function getItemById(id: number): Promise<PipelineItem | null> {
   await ensureMigrated();
   const db = getDb();
-  const rows = await db`SELECT * FROM pipeline_items WHERE id = ${id}`;
-  return (rows[0] as unknown as PipelineItem) || null;
+  const rows = await db`SELECT * FROM pipeline_items WHERE id = ${id}` as unknown as PipelineItem[];
+  return rows[0] || null;
 }
 
 export async function addItem(data: {
@@ -97,8 +97,8 @@ export async function addItem(data: {
     INSERT INTO pipeline_items (reel_link, handle, hook, format, category, tipo, views)
     VALUES (${data.reel_link}, ${data.handle}, ${data.hook}, ${data.format || null}, ${data.category || null}, ${data.tipo || null}, ${data.views || null})
     RETURNING *
-  `;
-  return rows[0] as unknown as PipelineItem;
+  ` as unknown as PipelineItem[];
+  return rows[0];
 }
 
 export async function updateItem(id: number, data: Partial<{ stage: string; notes: string; script: string; analysis: string; priority: number }>): Promise<PipelineItem | null> {
@@ -120,13 +120,13 @@ export async function updateItem(id: number, data: Partial<{ stage: string; note
     SET stage = ${stage}, notes = ${notes}, script = ${script}, analysis = ${analysis}, priority = ${priority}, updated_at = NOW()
     WHERE id = ${id}
     RETURNING *
-  `;
-  return (rows[0] as unknown as PipelineItem) || null;
+  ` as unknown as PipelineItem[];
+  return rows[0] || null;
 }
 
 export async function deleteItem(id: number): Promise<boolean> {
   await ensureMigrated();
   const db = getDb();
-  const rows = await db`DELETE FROM pipeline_items WHERE id = ${id} RETURNING id`;
+  const rows = await db`DELETE FROM pipeline_items WHERE id = ${id} RETURNING id` as unknown as { id: number }[];
   return rows.length > 0;
 }
