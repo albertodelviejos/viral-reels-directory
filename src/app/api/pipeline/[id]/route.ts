@@ -15,7 +15,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       return NextResponse.json({ error: `Invalid stage. Must be one of: ${STAGES.join(', ')}` }, { status: 400 });
     }
 
-    const item = updateItem(id, { stage, notes, priority });
+    const item = await updateItem(id, { stage, notes, priority });
     if (!item) {
       return NextResponse.json({ error: 'Item not found' }, { status: 404 });
     }
@@ -34,7 +34,7 @@ export async function DELETE(_request: Request, { params }: { params: { id: stri
       return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
     }
 
-    const deleted = deleteItem(id);
+    const deleted = await deleteItem(id);
     if (!deleted) {
       return NextResponse.json({ error: 'Item not found' }, { status: 404 });
     }

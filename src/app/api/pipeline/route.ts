@@ -3,7 +3,7 @@ import { getAllItems, addItem } from '@/lib/pipeline-db';
 
 export async function GET() {
   try {
-    const items = getAllItems();
+    const items = await getAllItems();
     return NextResponse.json({ items });
   } catch (e) {
     console.error('Pipeline GET error:', e);
@@ -20,10 +20,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'reel_link, handle, and hook are required' }, { status: 400 });
     }
 
-    const item = addItem({ reel_link, handle, hook, format, category, tipo, views });
+    const item = await addItem({ reel_link, handle, hook, format, category, tipo, views });
     return NextResponse.json({ item }, { status: 201 });
   } catch (e: unknown) {
-    if (e instanceof Error && e.message.includes('UNIQUE constraint')) {
+    if (e instanceof Error && e.message.includes('unique')) {
       return NextResponse.json({ error: 'This reel is already in the pipeline' }, { status: 409 });
     }
     console.error('Pipeline POST error:', e);

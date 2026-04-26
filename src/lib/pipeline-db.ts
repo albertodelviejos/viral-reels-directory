@@ -1,21 +1,24 @@
-import Database from 'better-sqlite3';
-import path from 'path';
-import fs from 'fs';
+import { neon } from '@neondatabase/serverless';
 
-const DB_DIR = path.join(process.cwd(), 'db');
-const DB_PATH = path.join(DB_DIR, 'pipeline.db');
+type SqlClient = ReturnType<typeof neon>;
 
-function getDb(): Database.Database {
-  if (!fs.existsSync(DB_DIR)) {
-    fs.mkdirSync(DB_DIR, { recursive: true });
+let sql: SqlClient | null = null;
+let migrated = false;
+
+function getDb(): SqlClient {
+  if (!sql) {
+    sql = neon(process.env.DATABASE_URL!);
   }
+  return sql;
+}
 
-  const db = new Database(DB_PATH);
-  db.pragma('journal_mode = WAL');
+async function ensureMigrated() {
+  if (migrated) return;
+  const db = getDb();
 
-  db.exec(`
+  await db`
     CREATE TABLE IF NOT EXISTS pipeline_items (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       reel_link TEXT UNIQUE NOT NULL,
       handle TEXT NOT NULL,
       hook TEXT NOT NULL,
@@ -26,22 +29,14 @@ function getDb(): Database.Database {
       stage TEXT NOT NULL DEFAULT 'idea',
       notes TEXT DEFAULT '',
       script TEXT DEFAULT '',
+      analysis TEXT DEFAULT '',
       priority INTEGER DEFAULT 0,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      created_at TIMESTAMPTZ DEFAULT NOW(),
+      updated_at TIMESTAMPTZ DEFAULT NOW()
     )
-  `);
+  `;
 
-  // Migrations
-  const cols = db.prepare("PRAGMA table_info(pipeline_items)").all() as { name: string }[];
-  if (!cols.find(c => c.name === 'script')) {
-    db.exec("ALTER TABLE pipeline_items ADD COLUMN script TEXT DEFAULT ''");
-  }
-  if (!cols.find(c => c.name === 'analysis')) {
-    db.exec("ALTER TABLE pipeline_items ADD COLUMN analysis TEXT DEFAULT ''");
-  }
-
-  return db;
+  migrated = true;
 }
 
 export interface PipelineItem {
@@ -73,16 +68,21 @@ export const STAGE_LABELS: Record<Stage, string> = {
   publicado: 'Publicado',
 };
 
-export function getAllItems(): PipelineItem[] {
+export async function getAllItems(): Promise<PipelineItem[]> {
+  await ensureMigrated();
   const db = getDb();
-  try {
-    return db.prepare('SELECT * FROM pipeline_items ORDER BY priority DESC, created_at DESC').all() as PipelineItem[];
-  } finally {
-    db.close();
-  }
+  const rows = await db`SELECT * FROM pipeline_items ORDER BY priority DESC, created_at DESC`;
+  return rows as unknown as PipelineItem[];
 }
 
-export function addItem(data: {
+export async function getItemById(id: number): Promise<PipelineItem | null> {
+  await ensureMigrated();
+  const db = getDb();
+  const rows = await db`SELECT * FROM pipeline_items WHERE id = ${id}`;
+  return (rows[0] as unknown as PipelineItem) || null;
+}
+
+export async function addItem(data: {
   reel_link: string;
   handle: string;
   hook: string;
@@ -90,71 +90,43 @@ export function addItem(data: {
   category?: string;
   tipo?: string;
   views?: string;
-}): PipelineItem {
+}): Promise<PipelineItem> {
+  await ensureMigrated();
   const db = getDb();
-  try {
-    const stmt = db.prepare(`
-      INSERT INTO pipeline_items (reel_link, handle, hook, format, category, tipo, views)
-      VALUES (@reel_link, @handle, @hook, @format, @category, @tipo, @views)
-    `);
-    const result = stmt.run({
-      reel_link: data.reel_link,
-      handle: data.handle,
-      hook: data.hook,
-      format: data.format || null,
-      category: data.category || null,
-      tipo: data.tipo || null,
-      views: data.views || null,
-    });
-    return db.prepare('SELECT * FROM pipeline_items WHERE id = ?').get(result.lastInsertRowid) as PipelineItem;
-  } finally {
-    db.close();
-  }
+  const rows = await db`
+    INSERT INTO pipeline_items (reel_link, handle, hook, format, category, tipo, views)
+    VALUES (${data.reel_link}, ${data.handle}, ${data.hook}, ${data.format || null}, ${data.category || null}, ${data.tipo || null}, ${data.views || null})
+    RETURNING *
+  `;
+  return rows[0] as unknown as PipelineItem;
 }
 
-export function updateItem(id: number, data: Partial<{ stage: string; notes: string; script: string; analysis: string; priority: number }>): PipelineItem | null {
+export async function updateItem(id: number, data: Partial<{ stage: string; notes: string; script: string; analysis: string; priority: number }>): Promise<PipelineItem | null> {
+  await ensureMigrated();
   const db = getDb();
-  try {
-    const fields: string[] = [];
-    const values: Record<string, unknown> = { id };
 
-    if (data.stage !== undefined) {
-      fields.push('stage = @stage');
-      values.stage = data.stage;
-    }
-    if (data.notes !== undefined) {
-      fields.push('notes = @notes');
-      values.notes = data.notes;
-    }
-    if (data.script !== undefined) {
-      fields.push('script = @script');
-      values.script = data.script;
-    }
-    if (data.analysis !== undefined) {
-      fields.push('analysis = @analysis');
-      values.analysis = data.analysis;
-    }
-    if (data.priority !== undefined) {
-      fields.push('priority = @priority');
-      values.priority = data.priority;
-    }
+  // Read current, merge, write all
+  const current = await getItemById(id);
+  if (!current) return null;
 
-    if (fields.length === 0) return null;
+  const stage = data.stage ?? current.stage;
+  const notes = data.notes ?? current.notes;
+  const script = data.script ?? current.script;
+  const analysis = data.analysis ?? current.analysis;
+  const priority = data.priority ?? current.priority;
 
-    fields.push("updated_at = datetime('now')");
-    db.prepare(`UPDATE pipeline_items SET ${fields.join(', ')} WHERE id = @id`).run(values);
-    return db.prepare('SELECT * FROM pipeline_items WHERE id = ?').get(id) as PipelineItem | null;
-  } finally {
-    db.close();
-  }
+  const rows = await db`
+    UPDATE pipeline_items
+    SET stage = ${stage}, notes = ${notes}, script = ${script}, analysis = ${analysis}, priority = ${priority}, updated_at = NOW()
+    WHERE id = ${id}
+    RETURNING *
+  `;
+  return (rows[0] as unknown as PipelineItem) || null;
 }
 
-export function deleteItem(id: number): boolean {
+export async function deleteItem(id: number): Promise<boolean> {
+  await ensureMigrated();
   const db = getDb();
-  try {
-    const result = db.prepare('DELETE FROM pipeline_items WHERE id = ?').run(id);
-    return result.changes > 0;
-  } finally {
-    db.close();
-  }
+  const rows = await db`DELETE FROM pipeline_items WHERE id = ${id} RETURNING id`;
+  return rows.length > 0;
 }

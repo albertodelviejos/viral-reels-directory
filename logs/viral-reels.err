@@ -1,0 +1,88 @@
+Analysis error: Error: Command failed: /Users/alberto/.nvm/versions/node/v24.13.0/bin/claude --print "You are an expert viral content analyst specializing in Instagram Reels, TikTok, and YouTube Shorts.\n\nAnalyze WHY this video went viral and break down the key elements that made it successful.\n\n**Video details:**\n- Creator: nick_saraev\n- Hook/Topic: Comment \"DESIGN\" to get this AI UI component library, best for web design.\n- Format used: Tutorial AI tool demo\n- Category: AI Automation\n- Type: Reel\n- Views: 45658\n\n**Provide a detailed analysis with this structure:**\n\n## 🔍 VIRAL ANALYSIS\n\n### 🎣 Hook Breakdown\n- What makes the opening compelling?\n- Pattern interrupt or curiosity gap used?\n- First 3 seconds strategy\n\n### 📊 Format & Structure\n- Content structure (listicle, demo, story, shock, etc.)\n- Pacing and retention techniques\n- Length optimization\n\n### 🧠 Psychology Triggers\n- Which psychological triggers are at play? (FOMO, curiosity, social proof, controversy, etc.)\n- Emotional response targeted\n- Shareability factors\n\n### 📈 Growth Mechanics\n- CTA strategy (comment bait, save-worthy, share trigger)\n- Algorithm signals (watch time, engagement bait, etc.)\n- Community/niche targeting\n\n### ✅ Key Takeaways\n- Top 3 elements to replicate\n- What to adapt vs copy exactly\n- Potential risks or pitfalls\n\n### 🎯 Replication Score\nRate from 1-10 how easy this is to replicate, and why.\n\nWrite EVERYTHING in English. Be specific and actionable."
+    at genericNodeError (node:internal/errors:985:15)
+    at wrappedFn (node:internal/errors:539:14)
+    at checkExecSyncError (node:child_process:925:11)
+    at execSync (node:child_process:997:15)
+    at u (/Users/alberto/viral-reels-directory/.next/server/app/api/pipeline/[id]/analyze/route.js:45:83)
+    at /Users/alberto/viral-reels-directory/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:38417
+    at /Users/alberto/viral-reels-directory/node_modules/next/dist/server/lib/trace/tracer.js:140:36
+    at NoopContextManager.with (/Users/alberto/viral-reels-directory/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:7062)
+    at ContextAPI.with (/Users/alberto/viral-reels-directory/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:518)
+    at NoopTracer.startActiveSpan (/Users/alberto/viral-reels-directory/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18093) {
+  status: 1,
+  signal: null,
+  output: [
+    null,
+    "You've hit your limit · resets 8pm (Europe/Bucharest)\n",
+    ''
+  ],
+  pid: 79570,
+  stdout: "You've hit your limit · resets 8pm (Europe/Bucharest)\n",
+  stderr: ''
+}
+Script generation error: Error: Command failed: /Users/alberto/.nvm/versions/node/v24.13.0/bin/claude --print "Eres un guionista experto en contenido viral de Instagram/TikTok/YouTube Shorts.\n\nGenera un guión completo para un video corto (30-60 segundos) basado en esta referencia viral:\n\n**Referencia viral:**\n- Creador original: nick_saraev\n- Hook/Tema: Comment \"DESIGN\" to get this AI UI component library, best for web design.\n- Formato que usó: Tutorial AI tool demo\n- Categoría: AI Automation\n- Tipo: Reel\n- Views originales: 45658\n\n**Context:** The video is for Alberto (@albertodviejo), a content creator focused on AI, automation, and technology. The script should be adapted to his style and English-speaking audience.\n\n\n\n**Generate the script with this structure:**\n\n## 🎬 SCRIPT\n\n### Hook (0-3s)\n[Opening line that hooks immediately]\n\n### Body (3-25s)  \n[Main content, step by step or story]\n\n### CTA / Closing (25-30s)\n[Strong call to action or closing line]\n\n---\n\n### 📝 Production Notes\n- **Visual style:** [editing suggestions]\n- **Music/SFX:** [recommendations]\n- **On-screen text:** [suggested overlays]\n- **Hashtags:** [5-8 relevant hashtags]\n\nWrite EVERYTHING in English."
+    at genericNodeError (node:internal/errors:985:15)
+    at wrappedFn (node:internal/errors:539:14)
+    at checkExecSyncError (node:child_process:925:11)
+    at execSync (node:child_process:997:15)
+    at u (/Users/alberto/viral-reels-directory/.next/server/app/api/pipeline/[id]/generate-script/route.js:38:55)
+    at /Users/alberto/viral-reels-directory/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:38417
+    at /Users/alberto/viral-reels-directory/node_modules/next/dist/server/lib/trace/tracer.js:140:36
+    at NoopContextManager.with (/Users/alberto/viral-reels-directory/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:7062)
+    at ContextAPI.with (/Users/alberto/viral-reels-directory/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:518)
+    at NoopTracer.startActiveSpan (/Users/alberto/viral-reels-directory/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18093) {
+  status: 1,
+  signal: null,
+  output: [
+    null,
+    "You've hit your limit · resets 8pm (Europe/Bucharest)\n",
+    ''
+  ],
+  pid: 79700,
+  stdout: "You've hit your limit · resets 8pm (Europe/Bucharest)\n",
+  stderr: ''
+}
+Script generation error: Error: Command failed: /Users/alberto/.nvm/versions/node/v24.13.0/bin/claude --print "Eres un guionista experto en contenido viral de Instagram/TikTok/YouTube Shorts.\n\nGenera un guión completo para un video corto (30-60 segundos) basado en esta referencia viral:\n\n**Referencia viral:**\n- Creador original: nick_saraev\n- Hook/Tema: Comment \"DESIGN\" to get this AI UI component library, best for web design.\n- Formato que usó: Tutorial AI tool demo\n- Categoría: AI Automation\n- Tipo: Reel\n- Views originales: 45658\n\n**Context:** The video is for Alberto (@albertodviejo), a content creator focused on AI, automation, and technology. The script should be adapted to his style and English-speaking audience.\n\n\n\n**Generate the script with this structure:**\n\n## 🎬 SCRIPT\n\n### Hook (0-3s)\n[Opening line that hooks immediately]\n\n### Body (3-25s)  \n[Main content, step by step or story]\n\n### CTA / Closing (25-30s)\n[Strong call to action or closing line]\n\n---\n\n### 📝 Production Notes\n- **Visual style:** [editing suggestions]\n- **Music/SFX:** [recommendations]\n- **On-screen text:** [suggested overlays]\n- **Hashtags:** [5-8 relevant hashtags]\n\nWrite EVERYTHING in English."
+    at genericNodeError (node:internal/errors:985:15)
+    at wrappedFn (node:internal/errors:539:14)
+    at checkExecSyncError (node:child_process:925:11)
+    at execSync (node:child_process:997:15)
+    at u (/Users/alberto/viral-reels-directory/.next/server/app/api/pipeline/[id]/generate-script/route.js:38:55)
+    at /Users/alberto/viral-reels-directory/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:38417
+    at /Users/alberto/viral-reels-directory/node_modules/next/dist/server/lib/trace/tracer.js:140:36
+    at NoopContextManager.with (/Users/alberto/viral-reels-directory/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:7062)
+    at ContextAPI.with (/Users/alberto/viral-reels-directory/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:518)
+    at NoopTracer.startActiveSpan (/Users/alberto/viral-reels-directory/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18093) {
+  status: 1,
+  signal: null,
+  output: [
+    null,
+    "You've hit your limit · resets 8pm (Europe/Bucharest)\n",
+    ''
+  ],
+  pid: 82832,
+  stdout: "You've hit your limit · resets 8pm (Europe/Bucharest)\n",
+  stderr: ''
+}
+Analysis error: Error: Command failed: /Users/alberto/.nvm/versions/node/v24.13.0/bin/claude --print "You are an expert viral content analyst specializing in Instagram Reels, TikTok, and YouTube Shorts.\n\nAnalyze WHY this video went viral and break down the key elements that made it successful.\n\n**Video details:**\n- Creator: nick_saraev\n- Hook/Topic: Comment \"DESIGN\" to get this AI UI component library, best for web design.\n- Format used: Tutorial AI tool demo\n- Category: AI Automation\n- Type: Reel\n- Views: 45658\n\n**Provide a detailed analysis with this structure:**\n\n## 🔍 VIRAL ANALYSIS\n\n### 🎣 Hook Breakdown\n- What makes the opening compelling?\n- Pattern interrupt or curiosity gap used?\n- First 3 seconds strategy\n\n### 📊 Format & Structure\n- Content structure (listicle, demo, story, shock, etc.)\n- Pacing and retention techniques\n- Length optimization\n\n### 🧠 Psychology Triggers\n- Which psychological triggers are at play? (FOMO, curiosity, social proof, controversy, etc.)\n- Emotional response targeted\n- Shareability factors\n\n### 📈 Growth Mechanics\n- CTA strategy (comment bait, save-worthy, share trigger)\n- Algorithm signals (watch time, engagement bait, etc.)\n- Community/niche targeting\n\n### ✅ Key Takeaways\n- Top 3 elements to replicate\n- What to adapt vs copy exactly\n- Potential risks or pitfalls\n\n### 🎯 Replication Score\nRate from 1-10 how easy this is to replicate, and why.\n\nWrite EVERYTHING in English. Be specific and actionable."
+    at genericNodeError (node:internal/errors:985:15)
+    at wrappedFn (node:internal/errors:539:14)
+    at checkExecSyncError (node:child_process:925:11)
+    at execSync (node:child_process:997:15)
+    at u (/Users/alberto/viral-reels-directory/.next/server/app/api/pipeline/[id]/analyze/route.js:45:83)
+    at /Users/alberto/viral-reels-directory/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:38417
+    at /Users/alberto/viral-reels-directory/node_modules/next/dist/server/lib/trace/tracer.js:140:36
+    at NoopContextManager.with (/Users/alberto/viral-reels-directory/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:7062)
+    at ContextAPI.with (/Users/alberto/viral-reels-directory/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:518)
+    at NoopTracer.startActiveSpan (/Users/alberto/viral-reels-directory/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18093) {
+  status: 1,
+  signal: null,
+  output: [
+    null,
+    "You've hit your limit · resets 8pm (Europe/Bucharest)\n",
+    ''
+  ],
+  pid: 82910,
+  stdout: "You've hit your limit · resets 8pm (Europe/Bucharest)\n",
+  stderr: ''
+}

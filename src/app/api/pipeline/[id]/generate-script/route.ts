@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { execSync } from 'child_process';
-import { updateItem, getAllItems } from '@/lib/pipeline-db';
+import Anthropic from '@anthropic-ai/sdk';
+import { updateItem, getItemById } from '@/lib/pipeline-db';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -14,9 +14,7 @@ export async function POST(
     return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
   }
 
-  // Get the item
-  const items = getAllItems();
-  const item = items.find(i => i.id === id);
+  const item = await getItemById(id);
   if (!item) {
     return NextResponse.json({ error: 'Item not found' }, { status: 404 });
   }
@@ -39,12 +37,12 @@ ${item.notes ? `**Creator notes:** ${item.notes}` : ''}
 
 **Generate the script with this structure:**
 
-## 🎬 SCRIPT
+## SCRIPT
 
 ### Hook (0-3s)
 [Opening line that hooks immediately]
 
-### Body (3-25s)  
+### Body (3-25s)
 [Main content, step by step or story]
 
 ### CTA / Closing (25-30s)
@@ -52,7 +50,7 @@ ${item.notes ? `**Creator notes:** ${item.notes}` : ''}
 
 ---
 
-### 📝 Production Notes
+### Production Notes
 - **Visual style:** [editing suggestions]
 - **Music/SFX:** [recommendations]
 - **On-screen text:** [suggested overlays]
@@ -61,22 +59,19 @@ ${item.notes ? `**Creator notes:** ${item.notes}` : ''}
 Write EVERYTHING in English.`;
 
   try {
-    const claudePath = '/Users/alberto/.nvm/versions/node/v24.13.0/bin/claude';
-    const script = execSync(
-      `${claudePath} --print "${prompt.replace(/"/g, '\\"').replace(/\n/g, '\\n')}"`,
-      {
-        encoding: 'utf8',
-        timeout: 120000,
-        env: {
-          ...process.env,
-          PATH: `/Users/alberto/.nvm/versions/node/v24.13.0/bin:${process.env.PATH}`,
-          HOME: '/Users/alberto',
-        },
-      }
-    ).trim();
+    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    const message = await client.messages.create({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 2048,
+      messages: [{ role: 'user', content: prompt }],
+    });
 
-    // Save to DB
-    const updated = updateItem(id, { script, stage: 'guion' });
+    const script = message.content
+      .filter(b => b.type === 'text')
+      .map(b => b.text)
+      .join('\n');
+
+    const updated = await updateItem(id, { script, stage: 'guion' });
 
     return NextResponse.json({ script, item: updated });
   } catch (error: unknown) {
